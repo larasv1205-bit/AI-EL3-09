@@ -6,8 +6,8 @@ RULES = {
     "MCB trip": "Kemungkinan beban berlebih atau gangguan listrik.",
     "Lampu redup": "Kemungkinan tegangan rendah atau sambungan longgar.",
     "Perangkat panas": "Periksa ventilasi dan beban perangkat."
-}
-
+} 
+diagnosis_history = []
 
 def diagnose():
     selected = [
@@ -31,7 +31,10 @@ def diagnose():
     for symptom in selected:
         if symptom in RULES:
             results.append(RULES[symptom])
-
+    diagnosis_history.append(
+        "Gejala: " + ", ".join(selected)
+        + "\nHasil: " + "; ".join(results)
+    )
     result_box.config(state="normal")
     result_box.delete("1.0", tk.END)
     result_box.insert("1.0", "HASIL DIAGNOSIS\n\n")
@@ -40,6 +43,24 @@ def diagnose():
     )
     result_box.config(state="disabled")
 
+def show_history():
+    history_window = tk.Toplevel(root)
+    history_window.title("Riwayat Diagnosis")
+    history_window.geometry("450x350")
+
+    history_box = tk.Text(history_window, wrap="word")
+    history_box.pack(fill="both", expand=True)
+
+    if diagnosis_history:
+        history_box.insert(
+            "1.0", "\n\n".join(diagnosis_history)
+        )
+    else:
+        history_box.insert(
+            "1.0", "Belum ada riwayat diagnosis."
+        )
+
+    history_box.config(state="disabled")
 
 root = tk.Tk()
 root.title("Electrical Expert System")
@@ -91,6 +112,14 @@ tk.Button(
     padx=15,
     pady=10
 ).pack(pady=18)
+tk.Button(
+    root,
+    text="LIHAT RIWAYAT",
+    command=show_history,
+    font=("Arial", 10, "bold"),
+    bg="#388e3c",
+    fg="white"
+).pack(pady=5)
 
 result_box = tk.Text(
     root,
