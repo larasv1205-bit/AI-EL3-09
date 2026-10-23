@@ -1,0 +1,568 @@
+import tkinter as tk
+from tkinter import ttk
+from datetime import datetime
+
+# ==========================================
+# 1. DATA AGENT DAN TUGAS
+# ==========================================
+
+TASKS = [
+    "Mengumpulkan data",
+    "Menganalisis data",
+    "Membuat laporan",
+    "Memeriksa hasil"
+]
+
+AGENTS = {
+    "Agent A": {
+        "role": "Data Collector",
+        "skills": ["Mengumpulkan data"],
+        "color": "#ef476f"
+    },
+    "Agent B": {
+        "role": "Data Analyzer",
+        "skills": ["Menganalisis data"],
+        "color": "#06d6a0"
+    },
+    "Agent C": {
+        "role": "Reporter",
+        "skills": ["Membuat laporan", "Memeriksa hasil"],
+        "color": "#ffb703"
+    }
+}
+
+
+# ==========================================
+# 2. SISTEM MULTI-AGENT
+# ==========================================
+
+class MultiAgentSystem:
+    def __init__(self):
+        self.completed = []
+        self.agent_counts = {name: 0 for name in AGENTS}
+
+    def assign(self, task):
+        for name, data in AGENTS.items():
+            if task in data["skills"]:
+                return name
+        return None
+
+    def finish(self, agent, task):
+        self.completed.append(task)
+        self.agent_counts[agent] += 1
+
+    def reset(self):
+        self.completed.clear()
+        self.agent_counts = {name: 0 for name in AGENTS}
+
+
+system = MultiAgentSystem()
+
+
+# ==========================================
+# 3. TAMPILAN APLIKASI
+# ==========================================
+
+BG = "#0b1220"
+PANEL = "#152238"
+TEXT = "#eaf2ff"
+MUTED = "#9db0cc"
+BLUE = "#3282ff"
+
+root = tk.Tk()
+root.title("AI Multi-Agent Command Center")
+root.geometry("1100x750")
+root.minsize(850, 650)
+root.configure(bg=BG)
+
+style = ttk.Style()
+style.theme_use("clam")
+style.configure(
+    "Custom.Horizontal.TProgressbar",
+    troughcolor="#263650",
+    background=BLUE,
+    bordercolor="#263650",
+    lightcolor=BLUE,
+    darkcolor=BLUE
+)
+
+running = False
+job_id = None
+task_index = 0
+tasks_to_run = []
+active_agent = None
+
+
+def make_label(parent, text, size=11, color=TEXT, bold=False):
+    return tk.Label(
+        parent,
+        text=text,
+        bg=parent.cget("bg"),
+        fg=color,
+        font=("Segoe UI", size, "bold" if bold else "normal")
+    )
+
+
+# HEADER
+header = tk.Frame(root, bg="#17335c", height=95)
+header.pack(fill="x")
+header.pack_propagate(False)
+
+tk.Label(
+    header,
+    text="AI MULTI-AGENT COMMAND CENTER",
+    font=("Segoe UI", 23, "bold"),
+    bg="#17335c",
+    fg="white"
+).pack(anchor="w", padx=25, pady=(13, 0))
+
+tk.Label(
+    header,
+    text="Intelligent Task Allocation & Agent Collaboration",
+    font=("Segoe UI", 11),
+    bg="#17335c",
+    fg="#bcd6ff"
+).pack(anchor="w", padx=27)
+
+
+# MAIN AREA
+body = tk.Frame(root, bg=BG)
+body.pack(fill="both", expand=True, padx=15, pady=15)
+
+body.grid_columnconfigure(0, weight=1)
+body.grid_columnconfigure(1, weight=2)
+body.grid_rowconfigure(0, weight=1)
+
+left = tk.Frame(body, bg=PANEL, padx=15, pady=15)
+left.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
+
+right = tk.Frame(body, bg=PANEL, padx=15, pady=15)
+right.grid(row=0, column=1, sticky="nsew")
+
+make_label(left, "CONTROL PANEL", 15, bold=True).pack(anchor="w")
+make_label(
+    left,
+    "Daftar tugas yang akan dibagikan:",
+    10,
+    MUTED
+).pack(anchor="w", pady=(15, 5))
+
+task_list = tk.Listbox(
+    left,
+    bg="#21334e",
+    fg="white",
+    selectbackground=BLUE,
+    font=("Segoe UI", 11),
+    height=6,
+    relief="flat",
+    highlightthickness=0
+)
+task_list.pack(fill="x")
+
+for task in TASKS:
+    task_list.insert("end", task)
+
+make_label(left, "Tambah tugas:", 10, MUTED).pack(
+    anchor="w", pady=(18, 5)
+)
+
+task_entry = tk.Entry(
+    left,
+    bg="#263650",
+    fg="white",
+    insertbackground="white",
+    font=("Segoe UI", 11),
+    relief="flat"
+)
+task_entry.pack(fill="x", ipady=8)
+
+
+def add_task():
+    task = task_entry.get().strip()
+    if task:
+        task_list.insert("end", task)
+        task_entry.delete(0, "end")
+        log("Tugas baru ditambahkan: " + task)
+
+
+tk.Button(
+    left,
+    text="+ TAMBAH TUGAS",
+    command=add_task,
+    bg="#31557f",
+    fg="white",
+    font=("Segoe UI", 10, "bold"),
+    relief="flat",
+    pady=9
+).pack(fill="x", pady=8)
+
+make_label(left, "Kecepatan simulasi", 10, MUTED).pack(
+    anchor="w", pady=(15, 3)
+)
+
+speed = tk.Scale(
+    left,
+    from_=1,
+    to=5,
+    orient="horizontal",
+    bg=PANEL,
+    fg="white",
+    troughcolor="#263650",
+    highlightthickness=0,
+    length=220
+)
+speed.set(3)
+speed.pack(fill="x")
+
+run_button = tk.Button(
+    left,
+    text="▶ JALANKAN SIMULASI",
+    bg="#12a879",
+    fg="white",
+    font=("Segoe UI", 12, "bold"),
+    relief="flat",
+    pady=12
+)
+run_button.pack(fill="x", pady=(22, 8))
+
+reset_button = tk.Button(
+    left,
+    text="↻ RESET",
+    bg="#31557f",
+    fg="white",
+    font=("Segoe UI", 11, "bold"),
+    relief="flat",
+    pady=10
+)
+reset_button.pack(fill="x")
+
+make_label(
+    left,
+    "Tugas baru hanya dapat dikerjakan\n"
+    "jika sesuai dengan keahlian agent.",
+    9,
+    MUTED
+).pack(anchor="w", pady=15)
+
+
+# VISUALISASI
+make_label(
+    right,
+    "LIVE AGENT NETWORK",
+    15,
+    bold=True
+).pack(anchor="w")
+
+canvas = tk.Canvas(
+    right,
+    bg="#101c30",
+    height=270,
+    highlightthickness=0
+)
+canvas.pack(fill="x", pady=12)
+
+status_label = make_label(
+    right,
+    "SYSTEM READY",
+    11,
+    "#7edaff",
+    bold=True
+)
+status_label.pack(anchor="w", pady=(2, 8))
+
+progress = ttk.Progressbar(
+    right,
+    style="Custom.Horizontal.TProgressbar",
+    maximum=100
+)
+progress.pack(fill="x")
+
+progress_text = make_label(
+    right, "Progress: 0%", 10, MUTED
+)
+progress_text.pack(anchor="w", pady=5)
+
+make_label(
+    right,
+    "ACTIVITY LOG",
+    13,
+    bold=True
+).pack(anchor="w", pady=(13, 5))
+
+log_box = tk.Text(
+    right,
+    bg="#101c30",
+    fg="#d7e9ff",
+    font=("Consolas", 10),
+    relief="flat",
+    height=9,
+    state="disabled",
+    wrap="word"
+)
+log_box.pack(fill="both", expand=True)
+
+
+# STATUS AGENT
+bottom = tk.Frame(root, bg=BG)
+bottom.pack(fill="x", padx=15, pady=(0, 15))
+
+agent_labels = {}
+
+for name, data in AGENTS.items():
+    card = tk.Frame(bottom, bg=PANEL, padx=15, pady=12)
+    card.pack(side="left", fill="both", expand=True, padx=5)
+
+    tk.Label(
+        card,
+        text=name,
+        bg=PANEL,
+        fg=data["color"],
+        font=("Segoe UI", 13, "bold")
+    ).pack(anchor="w")
+
+    make_label(card, data["role"], 10, MUTED).pack(anchor="w")
+
+    label = make_label(
+        card, "● IDLE | 0 tugas selesai", 10, TEXT
+    )
+    label.pack(anchor="w", pady=(9, 0))
+    agent_labels[name] = label
+
+
+# ==========================================
+# 4. GAMBAR DIAGRAM AGENT
+# ==========================================
+
+def draw_network(active=None):
+    canvas.delete("all")
+
+    width = max(canvas.winfo_width(), 500)
+    center = width / 2
+
+    canvas.create_rectangle(
+        center - 105, 18,
+        center + 105, 85,
+        fill="#24549b",
+        outline="#69b6ff",
+        width=2
+    )
+    canvas.create_text(
+        center, 39,
+        text="MANAGER AI",
+        fill="white",
+        font=("Segoe UI", 15, "bold")
+    )
+    canvas.create_text(
+        center, 65,
+        text="Task Coordinator",
+        fill="#c6e3ff",
+        font=("Segoe UI", 10)
+    )
+
+    positions = [
+        width * 0.18,
+        width * 0.50,
+        width * 0.82
+    ]
+
+    for i, (name, data) in enumerate(AGENTS.items()):
+        x = positions[i]
+        selected = name == active
+
+        canvas.create_line(
+            center, 85, x, 157,
+            fill=data["color"] if selected else "#45617f",
+            width=4 if selected else 2,
+            arrow=tk.LAST
+        )
+
+        canvas.create_oval(
+            x - 36, 165,
+            x + 36, 237,
+            fill=data["color"] if selected else "#243957",
+            outline=data["color"],
+            width=3
+        )
+
+        canvas.create_text(
+            x, 190,
+            text="AI",
+            fill="white",
+            font=("Segoe UI", 17, "bold")
+        )
+
+        canvas.create_text(
+            x, 253,
+            text=name,
+            fill="white",
+            font=("Segoe UI", 11, "bold")
+        )
+
+
+# ==========================================
+# 5. LOG DAN ANIMASI
+# ==========================================
+
+def log(message):
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    log_box.config(state="normal")
+    log_box.insert("end", f"[{timestamp}] {message}\n")
+    log_box.see("end")
+    log_box.config(state="disabled")
+
+
+def update_cards(active=None):
+    for name, label in agent_labels.items():
+        count = system.agent_counts[name]
+
+        if name == active:
+            status = "WORKING"
+            color = AGENTS[name]["color"]
+        elif count > 0:
+            status = "COMPLETED"
+            color = "#06d6a0"
+        else:
+            status = "IDLE"
+            color = TEXT
+
+        label.config(
+            text=f"● {status} | {count} tugas selesai",
+            fg=color
+        )
+
+
+def delay():
+    return 1400 - speed.get() * 220
+
+
+def schedule(callback):
+    global job_id
+    job_id = root.after(delay(), callback)
+
+
+def process_next():
+    global task_index, active_agent, running
+
+    if not running:
+        return
+
+    if task_index >= len(tasks_to_run):
+        running = False
+        active_agent = None
+        draw_network()
+        update_cards()
+        status_label.config(
+            text="SIMULATION COMPLETED",
+            fg="#06d6a0"
+        )
+        run_button.config(state="normal")
+        log("Simulasi selesai.")
+        return
+
+    task = tasks_to_run[task_index]
+    agent = system.assign(task)
+
+    if agent is None:
+        log(f"Tidak ada agent yang mampu: {task}")
+        task_index += 1
+        update_progress()
+        schedule(process_next)
+        return
+
+    active_agent = agent
+    draw_network(agent)
+    update_cards(agent)
+
+    status_label.config(
+        text=f"{agent.upper()} PROCESSING...",
+        fg=AGENTS[agent]["color"]
+    )
+
+    log(f"Manager → {agent}: {task}")
+    schedule(lambda: complete_task(agent, task))
+
+
+def complete_task(agent, task):
+    global task_index, active_agent
+
+    if not running:
+        return
+
+    system.finish(agent, task)
+    log(f"✓ {agent} menyelesaikan: {task}")
+
+    task_index += 1
+    active_agent = None
+
+    draw_network()
+    update_cards()
+    update_progress()
+    schedule(process_next)
+
+
+def update_progress():
+    total = len(tasks_to_run)
+    percent = int(task_index / total * 100) if total else 100
+    progress["value"] = percent
+    progress_text.config(text=f"Progress: {percent}%")
+
+
+def start_simulation():
+    global running, task_index, tasks_to_run
+
+    if running:
+        return
+
+    system.reset()
+    task_index = 0
+    tasks_to_run = list(task_list.get(0, "end"))
+    running = True
+
+    log_box.config(state="normal")
+    log_box.delete("1.0", "end")
+    log_box.config(state="disabled")
+
+    run_button.config(state="disabled")
+    progress["value"] = 0
+    progress_text.config(text="Progress: 0%")
+    update_cards()
+
+    log("Manager AI memulai simulasi.")
+    process_next()
+
+
+def reset_simulation():
+    global running, job_id, task_index, active_agent
+
+    running = False
+
+    if job_id is not None:
+        root.after_cancel(job_id)
+        job_id = None
+
+    system.reset()
+    task_index = 0
+    active_agent = None
+
+    progress["value"] = 0
+    progress_text.config(text="Progress: 0%")
+    status_label.config(text="SYSTEM READY", fg="#7edaff")
+    run_button.config(state="normal")
+
+    draw_network()
+    update_cards()
+    log("Sistem di-reset.")
+
+
+run_button.config(command=start_simulation)
+reset_button.config(command=reset_simulation)
+
+canvas.bind(
+    "<Configure>",
+    lambda event: draw_network(active_agent)
+)
+
+root.after(100, draw_network)
+log("AI Multi-Agent Command Center siap.")
+
+root.mainloop()
