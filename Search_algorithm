@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from collections import deque
 
 GRAPH = {
@@ -51,6 +51,8 @@ def dfs(start, goal):
 
     return None
 
+# Menyimpan riwayat hasil pencarian
+search_history = []
 
 def search():
     start = start_box.get()
@@ -67,10 +69,24 @@ def search():
             text="Jalur ditemukan: " + " -> ".join(path)
         )
         draw_graph(path)
+        history_entry = f"{method}: {start} -> {goal} | Jalur: {' -> '.join(path)}"
     else:
         result_label.config(text="Jalur tidak ditemukan.")
+        draw_graph()
+        history_entry = f"{method}: {start} -> {goal} | Jalur tidak ditemukan"
 
+    search_history.append(history_entry)
 
+def show_history():
+    if search_history:
+        history_text = "\n".join(
+            f"{i+1}. {item}"
+            for i, item in enumerate(search_history)
+        )
+    else:
+        history_text = "Belum ada riwayat pencarian."
+
+    messagebox.showinfo("Riwayat Pencarian", history_text)
 def draw_graph(path=None):
     canvas.delete("all")
 
@@ -156,6 +172,15 @@ result_label = tk.Label(
     bg="#f0f4f8", wraplength=480
 )
 result_label.pack(pady=8)
-
+tk.Button(
+    root,
+    text="LIHAT RIWAYAT",
+    command=lambda: show_history(),
+    bg="#174a7e",
+    fg="white",
+    font=("Arial", 10, "bold"),
+    padx=12,
+    pady=5
+).pack(pady=(0, 8))
 draw_graph()
 root.mainloop()
