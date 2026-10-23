@@ -27,7 +27,7 @@ def diagnose():
         results.append(
             "Kemungkinan gangguan rangkaian atau beban berlebih."
         )
-
+else:
     for symptom in selected:
         if symptom in RULES:
             results.append(RULES[symptom])
