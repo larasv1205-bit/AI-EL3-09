@@ -1,47 +1,51 @@
-AI-EL2-09
+# AI-EL2-09 — Artificial Intelligence Projects
 
-Artificial Intelligence Projects
+## 1. Introduction
 
-1. Introduction
+This project implements three Artificial Intelligence (AI) concepts using Python:
 
-This project implements three Artificial Intelligence concepts using Python:
+1. **Expert System** — Analyzes electrical symptoms and provides possible diagnoses based on predefined rules.
+2. **Search Algorithm** — Implements Breadth-First Search (BFS) and Depth-First Search (DFS) to find paths between nodes.
+3. **Multi-Agent System** — Simulates multiple agents collaborating to complete tasks under the coordination of a manager.
 
-1. Expert System — analyzes electrical symptoms and provides possible diagnoses based on predefined rules.
-2. Search Algorithm — implements Breadth-First Search (BFS) and Depth-First Search (DFS) to find paths between nodes.
-3. Multi-Agent System — simulates multiple agents collaborating to complete tasks under the coordination of a manager.
+The project includes graphical interfaces and visualizations, where applicable, to help users understand how each AI concept works.
 
-The project includes graphical visualizations to make the systems easier to understand and interact with.
+## 2. Requirements
 
-2. Requirement
+The following software and tools are required to run this project:
 
-The following software is required:
+- Python 3.10 or newer
+- Visual Studio Code (recommended)
+- Python extension for Visual Studio Code
+- Additional Python libraries, if required by the individual programs
 
-* Python 3.10 or newer
-* Visual Studio Code (recommended)
-* Python extension for Visual Studio Code
-* Required Python libraries, if any, as specified in the source code
-
-3. How to Use
+## 3. How to Run
 
 1. Install Python and Visual Studio Code.
-2. Download or clone this repository.
+2. Clone or download this repository.
 3. Open the project folder in Visual Studio Code.
-4. Open the terminal in the project directory.
-5. Run the desired Python program using:
-    python main.py
-6. Follow the instructions displayed by the program and interact with the visualization when available.
+4. Open the integrated terminal in the project directory.
+5. Run the appropriate Python file using the following command:
 
-4. Result
+   ```bash
+   python main.py
+   ```
 
-The expected results are:
+6. Follow the instructions displayed by the program and interact with the graphical interface, if available.
 
-* Expert System: displays possible electrical diagnoses based on selected symptoms.
-* Search Algorithm: displays the path found by BFS or DFS between a starting node and a destination node.
-* Multi-Agent System: visualizes task assignments and the collaboration of multiple agents.
+**Note:** Make sure to run the correct Python file for each AI implementation based on the project's directory structure.
 
-Screenshots of the program executions can be added to this section after testing.
+## 4. Results
 
-Contributors
+The expected outputs of this project include:
 
-* Larasati Varientz Sopany— project development
-* Sanabila Rayhani Adam— project development
+- **Expert System:** Displays possible electrical diagnoses based on the symptoms selected by the user.
+- **Search Algorithm:** Finds and displays a path between a starting node and a destination node using BFS or DFS.
+- **Multi-Agent System:** Demonstrates task assignments and collaboration among multiple agents.
+
+Screenshots of the program executions can be added to document the results of testing.
+
+## 5. Contributors
+
+- **Larasati Varientz Sopany** — Project Development
+- **Sanabila Rayhani Adam** — Project Development
