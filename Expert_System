@@ -1,0 +1,118 @@
+import tkinter as tk
+from tkinter import messagebox
+
+RULES = {
+    "Lampu mati": "Periksa lampu, sakelar, dan sambungan listrik.",
+    "MCB trip": "Kemungkinan beban berlebih atau gangguan listrik.",
+    "Lampu redup": "Kemungkinan tegangan rendah atau sambungan longgar.",
+    "Perangkat panas": "Periksa ventilasi dan beban perangkat."
+}
+
+
+def diagnose():
+    selected = [
+        symptom for symptom, variable in symptoms.items()
+        if variable.get()
+    ]
+
+    if not selected:
+        messagebox.showwarning(
+            "Peringatan", "Pilih minimal satu gejala dahulu."
+        )
+        return
+
+    results = []
+
+    if "Lampu mati" in selected and "MCB trip" in selected:
+        results.append(
+            "Kemungkinan gangguan rangkaian atau beban berlebih."
+        )
+
+    for symptom in selected:
+        if symptom in RULES:
+            results.append(RULES[symptom])
+
+    result_box.config(state="normal")
+    result_box.delete("1.0", tk.END)
+    result_box.insert("1.0", "HASIL DIAGNOSIS\n\n")
+    result_box.insert(
+        tk.END, "\n".join(f"• {result}" for result in results)
+    )
+    result_box.config(state="disabled")
+
+
+root = tk.Tk()
+root.title("Electrical Expert System")
+root.geometry("650x550")
+root.configure(bg="#eef2f7")
+
+title = tk.Label(
+    root,
+    text="ELECTRICAL EXPERT SYSTEM",
+    font=("Arial", 18, "bold"),
+    bg="#17365d",
+    fg="white",
+    pady=18
+)
+title.pack(fill="x")
+
+subtitle = tk.Label(
+    root,
+    text="Pilih gejala kelistrikan yang kamu alami:",
+    font=("Arial", 12),
+    bg="#eef2f7"
+)
+subtitle.pack(pady=15)
+
+symptoms = {}
+options = tk.Frame(root, bg="white", padx=20, pady=15)
+options.pack(padx=30, fill="x")
+
+for symptom in RULES:
+    variable = tk.BooleanVar()
+    symptoms[symptom] = variable
+
+    tk.Checkbutton(
+        options,
+        text=symptom,
+        variable=variable,
+        font=("Arial", 11),
+        bg="white",
+        anchor="w"
+    ).pack(fill="x", pady=5)
+
+tk.Button(
+    root,
+    text="ANALISIS GEJALA",
+    command=diagnose,
+    font=("Arial", 11, "bold"),
+    bg="#1976d2",
+    fg="white",
+    padx=15,
+    pady=10
+).pack(pady=18)
+
+result_box = tk.Text(
+    root,
+    height=8,
+    font=("Arial", 11),
+    wrap="word",
+    padx=12,
+    pady=12
+)
+result_box.pack(padx=30, fill="both", expand=True)
+result_box.insert(
+    "1.0",
+    "Hasil diagnosis akan muncul di sini setelah kamu menekan tombol."
+)
+result_box.config(state="disabled")
+
+footer = tk.Label(
+    root,
+    text="Simulasi edukasi — bukan diagnosis keselamatan listrik.",
+    bg="#eef2f7",
+    fg="#555555"
+)
+footer.pack(pady=8)
+
+root.mainloop()
