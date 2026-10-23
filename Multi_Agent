@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 
 # ==========================================
@@ -57,7 +57,7 @@ class MultiAgentSystem:
 
 
 system = MultiAgentSystem()
-
+unassigned_tasks = []
 
 # ==========================================
 # 3. TAMPILAN APLIKASI
@@ -225,16 +225,33 @@ run_button = tk.Button(
 )
 run_button.pack(fill="x", pady=(22, 8))
 
+
 reset_button = tk.Button(
     left,
-    text="↻ RESET",
+    text="↻ RESET SIMULASI",
+    command=lambda: reset_simulation(),
     bg="#31557f",
     fg="white",
-    font=("Segoe UI", 11, "bold"),
+    font=("Segoe UI", 10, "bold"),
     relief="flat",
-    pady=10
+    pady=9
 )
-reset_button.pack(fill="x")
+reset_button.pack(fill="x", pady=(8, 4))
+
+report_button = tk.Button(
+    left,
+    text="📊 LIHAT LAPORAN",
+    command=lambda: show_report(),
+    bg="#31557f",
+    fg="white",
+    font=("Segoe UI", 10, "bold"),
+    relief="flat",
+    pady=9,
+    cursor="hand2"
+)
+report_button.pack(fill="x", pady=4)
+
+
 
 make_label(
     left,
@@ -464,6 +481,7 @@ def process_next():
 
     if agent is None:
         log(f"Tidak ada agent yang mampu: {task}")
+        unassigned_tasks.append(task)
         task_index += 1
         update_progress()
         schedule(process_next)
@@ -514,6 +532,7 @@ def start_simulation():
         return
 
     system.reset()
+    unassigned_tasks.clear()
     task_index = 0
     tasks_to_run = list(task_list.get(0, "end"))
     running = True
@@ -541,6 +560,7 @@ def reset_simulation():
         job_id = None
 
     system.reset()
+    unassigned_tasks.clear()
     task_index = 0
     active_agent = None
 
@@ -552,6 +572,29 @@ def reset_simulation():
     draw_network()
     update_cards()
     log("Sistem di-reset.")
+
+def show_report():
+    total_tasks = len(tasks_to_run)
+    completed_tasks = len(system.completed)
+    failed_tasks = len(unassigned_tasks)
+
+    report = (
+        "LAPORAN HASIL SIMULASI\n\n"
+        f"Total tugas: {total_tasks}\n"
+        f"Tugas berhasil: {completed_tasks}\n"
+        f"Tugas tidak tertangani: {failed_tasks}\n\n"
+        "Jumlah tugas per agent:\n"
+    )
+
+    for agent_name, count in system.agent_counts.items():
+        report += f"- {agent_name}: {count} tugas\n"
+
+    if unassigned_tasks:
+        report += "\nTugas yang tidak tertangani:\n"
+        for task in unassigned_tasks:
+            report += f"- {task}\n"
+
+    messagebox.showinfo("Laporan Simulasi", report)
 
 
 run_button.config(command=start_simulation)
